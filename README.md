@@ -24,5 +24,5 @@ dotconf checkout
 ```
 
 ## TODO:
-[] Install ohmyzsh
-[] Install zsh plugins
+- [ ] Install ohmyzsh
+- [ ] Install zsh plugins
