@@ -23,6 +23,14 @@ Checkout the repo to get a copy of the config files in your home directory. This
 dotconf checkout
 ```
 
+Commands that should go to a post-checkout script or something.
+```bash
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone git://github.com/wting/autojump.git $HOME/tools/autojump
+$HOME/tools/autojump/install.sh
+```
+
 ## TODO:
 - [ ] Install ohmyzsh
 - [ ] Install zsh plugins
