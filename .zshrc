@@ -116,6 +116,9 @@ alias dotconf="/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME"
 alias zshconf="vim ~/.zshrc"
 alias ohmyzshconf="vim ~/.oh-my-zsh"
 alias ns="python /home/meissner/tools/nvidia-htop/nvidia-htop.py"
+function copy() {
+    rsync -ah --info=progress2 "$1" "$2"
+}
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
