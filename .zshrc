@@ -99,7 +99,6 @@ export LANG=en_US.UTF-8
 
 # Some tool confs
 export LESSCHARSET=utf-8 # Make less display special characters
-shopt -s dotglob # Make glob include hidden files
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
