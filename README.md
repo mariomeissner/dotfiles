@@ -6,6 +6,11 @@ I use this repository together with a local bare git repository, alongside a git
 
 To install these dotfiles on a new location, do the following steps.
 
+Install oh-my-zsh:
+```
+sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+```
+
 Clone the repository as a bare repo somewhere in your home folder.
 ```bash
 git clone --bare git@github.com:mariomeissner/dotfiles.git dotfiles
