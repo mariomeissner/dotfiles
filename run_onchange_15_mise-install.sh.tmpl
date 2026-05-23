@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+
+# mise config checksum: {{ include "private_dot_config/mise/config.toml" | sha256sum }}
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise not installed; skipping runtime install."
+  exit 0
+fi
+
+echo "Installing runtimes from mise config..."
+mise install

@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+# yt-to-gobby package checksum: {{ include "dot_local/share/yt-to-gobby/package.json" | sha256sum }}
+# yt-to-gobby lockfile checksum: {{ include "dot_local/share/yt-to-gobby/package-lock.json" | sha256sum }}
+# yt-to-gobby helper checksum: {{ include "dot_local/share/yt-to-gobby/executable_transcript-plus.mjs" | sha256sum }}
+
+APP_DIR="$HOME/.local/share/yt-to-gobby"
+
+if [ ! -f "$APP_DIR/package.json" ]; then
+  echo "yt-to-gobby package.json is not installed yet; skipping dependency install."
+  exit 0
+fi
+
+echo "Installing yt-to-gobby Node dependencies..."
+if command -v mise >/dev/null 2>&1; then
+  cd "$APP_DIR"
+  mise exec -- npm install --omit=dev
+elif command -v npm >/dev/null 2>&1; then
+  cd "$APP_DIR"
+  npm install --omit=dev
+else
+  echo "npm is not available yet; skipping yt-to-gobby dependency install."
+fi
+

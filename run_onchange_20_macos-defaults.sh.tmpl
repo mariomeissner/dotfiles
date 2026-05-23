@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# macos-defaults.sh checksum: {{ include "scripts/macos-defaults.sh" | sha256sum }}
+
+sh "{{ .chezmoi.sourceDir }}/scripts/macos-defaults.sh"
+

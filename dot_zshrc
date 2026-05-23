@@ -1,0 +1,55 @@
+# Keep login-shell path setup in ~/.zprofile. This file is for interactive zsh.
+
+# Antidote plugins
+if command -v antidote >/dev/null 2>&1 && [ -f "$HOME/.zsh_plugins.txt" ]; then
+  antidote load "$HOME/.zsh_plugins.txt"
+fi
+
+# mise for Node and future non-Python runtimes
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+# zoxide
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+# fzf
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+
+# uv / local Python tools
+export PATH="$HOME/.local/bin:$PATH"
+if command -v uv >/dev/null 2>&1; then
+  eval "$(uv generate-shell-completion zsh)"
+fi
+if command -v uvx >/dev/null 2>&1; then
+  eval "$(uvx --generate-shell-completion zsh)"
+fi
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Editor
+export EDITOR="vim"
+
+# Aliases
+if [ -f "$HOME/.config/zsh/aliases.zsh" ]; then
+  . "$HOME/.config/zsh/aliases.zsh"
+fi
+
+# Custom machine/workflow modules
+for config_file in "$HOME"/.config/zsh/custom/*.zsh(N); do
+  . "$config_file"
+done
+
+# Starship prompt
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi

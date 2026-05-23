@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# dock.sh checksum: {{ include "scripts/dock.sh" | sha256sum }}
+
+sh "{{ .chezmoi.sourceDir }}/scripts/dock.sh"
+

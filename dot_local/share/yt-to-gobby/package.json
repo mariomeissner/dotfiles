@@ -1,0 +1,8 @@
+{
+  "name": "yt-to-gobby-local",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "youtube-transcript-plus": "latest"
+  }
+}

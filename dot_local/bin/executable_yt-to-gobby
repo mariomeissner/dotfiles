@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  yt-to-gobby [--lang en] [--timestamps] [--keep-brackets] <youtube-url-or-video-id>
+
+Fetches a clean paragraph-style transcript locally, then uploads transcript +
+metadata to the Hermes VPS. It does NOT trigger Gobby automatically.
+
+Approach mirrors ClawHub video-transcript-downloader:
+  1) Try youtube-transcript-plus for YouTube.
+  2) Fall back to yt-dlp subtitles, then clean into paragraph text.
+
+After upload, come back to chat and say:
+  ingest the last video transcript I sent over
+
+Optional env vars:
+  HERMES_YT_HOST=root@163.44.118.197
+  HERMES_YT_REMOTE_DIR=/root/inbox/youtube-transcripts/incoming
+  YT_DLP_COOKIES_FROM_BROWSER=chrome   # or safari/firefox/brave/chromium
+EOF
+}
+
+LANG_CODE="en"
+TIMESTAMPS=0
+KEEP_BRACKETS=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --lang)
+      LANG_CODE="${2:-}"
+      shift 2
+      ;;
+    --timestamps)
+      TIMESTAMPS=1
+      shift
+      ;;
+    --keep-brackets)
+      KEEP_BRACKETS=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+URL="${1:-}"
+if [[ -z "$URL" ]]; then
+  usage
+  exit 2
+fi
+
+if ! command -v ssh >/dev/null 2>&1 || ! command -v scp >/dev/null 2>&1; then
+  echo "Missing ssh/scp on this machine." >&2
+  exit 127
+fi
+
+HERMES_YT_HOST="${HERMES_YT_HOST:-root@163.44.118.197}"
+HERMES_YT_REMOTE_DIR="${HERMES_YT_REMOTE_DIR:-/root/inbox/youtube-transcripts/incoming}"
+APP_DIR="$HOME/.local/share/yt-to-gobby"
+NODE_HELPER="$APP_DIR/transcript-plus.mjs"
+
+WORKDIR="$(mktemp -d "${TMPDIR:-/tmp}/yt-to-gobby.XXXXXX")"
+cleanup() { rm -rf "$WORKDIR"; }
+trap cleanup EXIT
+
+STAMP="$(date +%Y%m%d-%H%M%S)"
+UUID="$(uuidgen 2>/dev/null || python3 - <<'PY'
+import uuid
+print(uuid.uuid4())
+PY
+)"
+BASENAME="yt-${STAMP}-${UUID}"
+TRANSCRIPT_TXT="$WORKDIR/${BASENAME}.txt"
+META_JSON="$WORKDIR/${BASENAME}.metadata.json"
+METHOD=""
+CAPTION_FILE=""
+INFO_JSON=""
+
+NODE_ARGS=(--url "$URL" --lang "$LANG_CODE")
+if [[ "$TIMESTAMPS" == "1" ]]; then NODE_ARGS+=(--timestamps); fi
+if [[ "$KEEP_BRACKETS" == "1" ]]; then NODE_ARGS+=(--keep-brackets); fi
+
+if command -v node >/dev/null 2>&1 && [[ -f "$NODE_HELPER" && -d "$APP_DIR/node_modules/youtube-transcript-plus" ]]; then
+  echo "Trying youtube-transcript-plus..."
+  if node "$NODE_HELPER" "${NODE_ARGS[@]}" > "$TRANSCRIPT_TXT" 2> "$WORKDIR/transcript-plus.err" && [[ -s "$TRANSCRIPT_TXT" ]]; then
+    METHOD="youtube-transcript-plus"
+  else
+    echo "youtube-transcript-plus failed; falling back to yt-dlp subtitles." >&2
+    sed 's/^/  /' "$WORKDIR/transcript-plus.err" >&2 || true
+  fi
+fi
+
+if [[ -z "$METHOD" ]]; then
+  if ! command -v yt-dlp >/dev/null 2>&1; then
+    echo "Missing yt-dlp and direct transcript method was unavailable/failed." >&2
+    echo "Install locally: brew install yt-dlp" >&2
+    exit 127
+  fi
+
+  OUT_TMPL="$WORKDIR/%(title).180B [%(id)s].%(ext)s"
+  echo "Fetching subtitles with yt-dlp fallback..."
+
+  run_ytdlp_manual() {
+    if [[ -n "${YT_DLP_COOKIES_FROM_BROWSER:-}" ]]; then
+      yt-dlp --cookies-from-browser "$YT_DLP_COOKIES_FROM_BROWSER" --skip-download --write-info-json --write-subs --sub-langs "${LANG_CODE}.*,${LANG_CODE},en.*,en" --sub-format "vtt/srt/best" -o "$OUT_TMPL" "$URL"
+    else
+      yt-dlp --skip-download --write-info-json --write-subs --sub-langs "${LANG_CODE}.*,${LANG_CODE},en.*,en" --sub-format "vtt/srt/best" -o "$OUT_TMPL" "$URL"
+    fi
+  }
+  run_ytdlp_auto() {
+    if [[ -n "${YT_DLP_COOKIES_FROM_BROWSER:-}" ]]; then
+      yt-dlp --cookies-from-browser "$YT_DLP_COOKIES_FROM_BROWSER" --skip-download --write-info-json --write-auto-subs --sub-langs "${LANG_CODE}.*,${LANG_CODE},en.*,en" --sub-format "vtt/srt/best" -o "$OUT_TMPL" "$URL"
+    else
+      yt-dlp --skip-download --write-info-json --write-auto-subs --sub-langs "${LANG_CODE}.*,${LANG_CODE},en.*,en" --sub-format "vtt/srt/best" -o "$OUT_TMPL" "$URL"
+    fi
+  }
+
+  if ! run_ytdlp_manual; then
+    echo "Manual caption attempt failed; trying auto captions..." >&2
+    run_ytdlp_auto
+  fi
+
+  CAPTION_FILE="$(python3 - "$WORKDIR" <<'PY'
+import pathlib, sys
+root = pathlib.Path(sys.argv[1])
+files = [p for p in root.iterdir() if p.suffix.lower() in {'.vtt', '.srt', '.ttml', '.srv1', '.srv2', '.srv3'}]
+files.sort(key=lambda p: p.stat().st_size, reverse=True)
+print(files[0] if files else '')
+PY
+)"
+
+  INFO_JSON="$(python3 - "$WORKDIR" <<'PY'
+import pathlib, sys
+root = pathlib.Path(sys.argv[1])
+files = list(root.glob('*.info.json'))
+files.sort(key=lambda p: p.stat().st_size, reverse=True)
+print(files[0] if files else '')
+PY
+)"
+
+  if [[ -z "$CAPTION_FILE" || ! -s "$CAPTION_FILE" ]]; then
+    echo "No transcript/caption file was produced. The video may have captions disabled or require browser cookies." >&2
+    echo "Try: YT_DLP_COOKIES_FROM_BROWSER=chrome yt-to-gobby '$URL'" >&2
+    exit 1
+  fi
+
+  python3 - "$CAPTION_FILE" "$TRANSCRIPT_TXT" "$TIMESTAMPS" "$KEEP_BRACKETS" <<'PY'
+import re, sys, pathlib
+src = pathlib.Path(sys.argv[1])
+dst = pathlib.Path(sys.argv[2])
+timestamps = sys.argv[3] == '1'
+keep_brackets = sys.argv[4] == '1'
+text = src.read_text(errors='replace')
+chunks = []
+current_ts = None
+last_text = None
+for line in text.splitlines():
+    s = line.strip('\ufeff').strip()
+    if not s or s == 'WEBVTT' or s.startswith('Kind:') or s.startswith('Language:') or s.startswith('NOTE'):
+        continue
+    if re.match(r'^\d+$', s):
+        continue
+    if '-->' in s:
+        current_ts = s.split('-->')[0].strip().replace('.', ',')
+        last_text = None
+        continue
+    s = re.sub(r'<[^>]+>', '', s)
+    s = s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&#39;', "'")
+    s = re.sub(r'\s+', ' ', s).strip()
+    if not keep_brackets:
+        s = re.sub(r'\s*\[[^\]]+\]\s*', ' ', s)
+        s = re.sub(r'\s+', ' ', s).strip()
+    if s and s != last_text:
+        chunks.append(f'[{current_ts}] {s}' if timestamps and current_ts else s)
+        last_text = s
+body = '\n'.join(chunks) if timestamps else ' '.join(chunks)
+body = re.sub(r'[ \t]+', ' ', body).strip()
+dst.write_text(body + '\n')
+PY
+  METHOD="yt-dlp-subtitles"
+fi
+
+if [[ ! -s "$TRANSCRIPT_TXT" ]]; then
+  echo "Transcript output is empty after method=$METHOD" >&2
+  exit 1
+fi
+
+# Metadata: use yt-dlp info if we already have it; otherwise try lightweight metadata, but don't fail upload if it breaks.
+if [[ -z "$INFO_JSON" ]] && command -v yt-dlp >/dev/null 2>&1; then
+  if [[ -n "${YT_DLP_COOKIES_FROM_BROWSER:-}" ]]; then
+    yt-dlp --cookies-from-browser "$YT_DLP_COOKIES_FROM_BROWSER" --skip-download --write-info-json -o "$WORKDIR/info.%(ext)s" "$URL" >/dev/null 2>&1 || true
+  else
+    yt-dlp --skip-download --write-info-json -o "$WORKDIR/info.%(ext)s" "$URL" >/dev/null 2>&1 || true
+  fi
+  INFO_JSON="$(python3 - "$WORKDIR" <<'PY'
+import pathlib, sys
+files = list(pathlib.Path(sys.argv[1]).glob('*.info.json'))
+files.sort(key=lambda p: p.stat().st_size, reverse=True)
+print(files[0] if files else '')
+PY
+)"
+fi
+
+python3 - "$URL" "$CAPTION_FILE" "$INFO_JSON" "$META_JSON" "$METHOD" "$LANG_CODE" "$TIMESTAMPS" "$KEEP_BRACKETS" <<'PY'
+import json, pathlib, sys, datetime, socket
+url, caption, info, out, method, lang, timestamps, keep_brackets = sys.argv[1:]
+data = {
+  'url': url,
+  'method': method,
+  'language_requested': lang,
+  'timestamps': timestamps == '1',
+  'keep_brackets': keep_brackets == '1',
+  'caption_file_local': caption or None,
+  'info_json_local': info or None,
+  'fetched_at_local': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+  'local_hostname': socket.gethostname(),
+  'provenance': 'local laptop transcript fetch; youtube-transcript-plus first, yt-dlp subtitles fallback',
+}
+if info:
+    try:
+        raw = json.loads(pathlib.Path(info).read_text(errors='replace'))
+        for k in ['id','title','uploader','channel','duration','webpage_url','language','availability','upload_date','description']:
+            if k in raw:
+                data[k] = raw[k]
+    except Exception as e:
+        data['info_json_error'] = repr(e)
+pathlib.Path(out).write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+PY
+
+REMOTE_TRANSCRIPT="$HERMES_YT_REMOTE_DIR/${BASENAME}.txt"
+REMOTE_META="$HERMES_YT_REMOTE_DIR/${BASENAME}.metadata.json"
+REMOTE_LATEST="$HERMES_YT_REMOTE_DIR/LATEST"
+
+echo "Uploading to $HERMES_YT_HOST ..."
+ssh "$HERMES_YT_HOST" "mkdir -p '$HERMES_YT_REMOTE_DIR'"
+scp "$TRANSCRIPT_TXT" "$HERMES_YT_HOST:$REMOTE_TRANSCRIPT"
+scp "$META_JSON" "$HERMES_YT_HOST:$REMOTE_META"
+ssh "$HERMES_YT_HOST" "printf '%s\n%s\n' '$REMOTE_TRANSCRIPT' '$REMOTE_META' > '$REMOTE_LATEST'"
+
+echo "OK uploaded transcript to Hermes VPS."
+echo "method=$METHOD"
+echo "transcript=$REMOTE_TRANSCRIPT"
+echo "metadata=$REMOTE_META"
+echo "latest_pointer=$REMOTE_LATEST"
+echo
+echo "Now tell Gobby: ingest the last video transcript I sent over"
