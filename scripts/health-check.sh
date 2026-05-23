@@ -57,9 +57,15 @@ check_app() {
 }
 
 echo "Checking required commands..."
-for cmd in brew chezmoi git gh rg fd fzf bat eza zoxide starship antidote uv mise node pnpm; do
+for cmd in brew chezmoi git gh rg fd fzf bat eza zoxide starship uv mise node pnpm; do
   require_cmd "$cmd"
 done
+
+if [ -f /opt/homebrew/share/antidote/antidote.zsh ]; then
+  pass "antidote Homebrew script available"
+else
+  fail "missing required Homebrew antidote script"
+fi
 
 echo
 echo "Checking optional commands..."

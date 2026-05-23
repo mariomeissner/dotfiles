@@ -1,4 +1,3 @@
-tap "homebrew/bundle"
 tap "homebrew/services"
 
 # Bootstrap / dotfiles

@@ -1,7 +1,8 @@
 # Keep login-shell path setup in ~/.zprofile. This file is for interactive zsh.
 
 # Antidote plugins
-if command -v antidote >/dev/null 2>&1 && [ -f "$HOME/.zsh_plugins.txt" ]; then
+if [ -f /opt/homebrew/share/antidote/antidote.zsh ] && [ -f "$HOME/.zsh_plugins.txt" ]; then
+  . /opt/homebrew/share/antidote/antidote.zsh
   antidote load "$HOME/.zsh_plugins.txt"
 fi
 
