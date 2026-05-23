@@ -43,6 +43,7 @@ cask "cursor"
 
 # Terminals
 cask "ghostty"
+cask "cmux"
 cask "iterm2"
 
 # Productivity
