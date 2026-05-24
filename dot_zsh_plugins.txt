@@ -6,3 +6,7 @@ mattmc3/ez-compinit
 Aloxaf/fzf-tab
 zsh-users/zsh-autosuggestions
 zdharma-continuum/fast-syntax-highlighting
+
+# History search and alias reminders.
+zsh-users/zsh-history-substring-search
+MichaelAquilina/zsh-you-should-use

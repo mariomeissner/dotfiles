@@ -6,10 +6,26 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_REDUCE_BLANKS
 
+# zsh-you-should-use
+export YSU_MESSAGE_POSITION="after"
+
 # Antidote plugins
 if [ -f /opt/homebrew/share/antidote/antidote.zsh ] && [ -f "$HOME/.zsh_plugins.txt" ]; then
   . /opt/homebrew/share/antidote/antidote.zsh
   antidote load "$HOME/.zsh_plugins.txt"
+fi
+
+# History substring search
+if (( ${+widgets[history-substring-search-up]} && ${+widgets[history-substring-search-down]} )); then
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+  bindkey '^[OA' history-substring-search-up
+  bindkey '^[OB' history-substring-search-down
+
+  if zmodload zsh/terminfo 2>/dev/null; then
+    [ -n "${terminfo[kcuu1]-}" ] && bindkey "$terminfo[kcuu1]" history-substring-search-up
+    [ -n "${terminfo[kcud1]-}" ] && bindkey "$terminfo[kcud1]" history-substring-search-down
+  fi
 fi
 
 # mise for Node and future non-Python runtimes
