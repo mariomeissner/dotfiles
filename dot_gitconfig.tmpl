@@ -1,0 +1,65 @@
+{{- $gitUserName := index . "gitUserName" -}}
+{{- $gitUserEmail := index . "gitUserEmail" -}}
+{{- if not $gitUserName -}}
+{{- fail "missing gitUserName; run chezmoi init to regenerate local template data" -}}
+{{- end -}}
+{{- if not $gitUserEmail -}}
+{{- fail "missing gitUserEmail; run chezmoi init to regenerate local template data" -}}
+{{- end -}}
+[user]
+	name = {{ $gitUserName | quote }}
+	email = {{ $gitUserEmail | quote }}
+
+[init]
+	defaultBranch = main
+
+[core]
+	editor = vim
+	autocrlf = input
+
+[color]
+	ui = auto
+
+[column]
+	ui = auto
+
+[branch]
+	autoSetupMerge = simple
+	sort = -committerdate
+
+[checkout]
+	defaultRemote = origin
+
+[tag]
+	sort = version:refname
+
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
+
+[merge]
+	conflictStyle = zdiff3
+
+[fetch]
+	prune = true
+	pruneTags = true
+
+[pull]
+	ff = only
+
+[push]
+	default = current
+	autoSetupRemote = true
+	followTags = true
+
+[commit]
+	verbose = true
+
+[rerere]
+	enabled = true
+
+[rebase]
+	autoStash = true
+	updateRefs = true

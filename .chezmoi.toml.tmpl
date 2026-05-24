@@ -1,0 +1,7 @@
+# Keep this explicit so regenerating the local chezmoi config does not fall
+# back to ~/.local/share/chezmoi.
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[data]
+    gitUserName = {{ promptString "gitUserName" "Git user name" | quote }}
+    gitUserEmail = {{ promptString "gitUserEmail" "Git user email" | quote }}

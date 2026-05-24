@@ -12,6 +12,7 @@ then apply intentionally.
 
 - Homebrew formulae and casks via `Brewfile`
 - zsh login and interactive shell setup
+- Git identity and default behavior
 - zsh plugins via Antidote
 - Starship prompt configuration
 - Node LTS via `mise`
@@ -80,6 +81,7 @@ or decide to discard it.
 ## Repository Layout
 
 - `Brewfile`: Homebrew CLI tools and apps.
+- `dot_gitconfig.tmpl`: Git identity and default behavior.
 - `dot_zprofile`: login-shell Homebrew and environment setup.
 - `dot_zshrc`: interactive zsh setup.
 - `dot_zsh_plugins.txt`: Antidote plugin list.
@@ -139,6 +141,9 @@ This repo intentionally does not store secrets.
 
 Machine-specific credentials, tokens, remote hosts, and private environment
 values should be configured outside the repo or in local-only files.
+
+Git identity is templated during `chezmoi init` and stored in the local chezmoi
+config, not hard-coded in the managed `.gitconfig`.
 
 ## Included Utilities
 

@@ -34,6 +34,27 @@ optional_cmd() {
   fi
 }
 
+check_chezmoi_source() {
+  expected_source=$(cd "$(dirname "$0")/.." && pwd)
+  actual_source=$(chezmoi source-path 2>/dev/null)
+
+  if [ -z "$actual_source" ]; then
+    fail "chezmoi source path could not be read"
+    return
+  fi
+
+  if [ ! -d "$actual_source" ]; then
+    fail "chezmoi source path missing: $actual_source"
+    return
+  fi
+
+  if [ "$actual_source" = "$expected_source" ]; then
+    pass "chezmoi source path points to this repo"
+  else
+    fail "chezmoi source path expected $expected_source, got $actual_source"
+  fi
+}
+
 check_default() {
   domain=$1
   key=$2
@@ -66,6 +87,8 @@ if [ -f /opt/homebrew/share/antidote/antidote.zsh ]; then
 else
   fail "missing required Homebrew antidote script"
 fi
+
+check_chezmoi_source
 
 echo
 echo "Checking optional commands..."
