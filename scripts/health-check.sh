@@ -78,7 +78,7 @@ check_app() {
 }
 
 echo "Checking required commands..."
-for cmd in brew chezmoi git gh rg fd fzf bat eza zoxide starship uv mise node pnpm; do
+for cmd in brew chezmoi git gh rg fd fzf bat eza zoxide starship uv mise node pnpm delta direnv just hyperfine btop dust dua yazi; do
   require_cmd "$cmd"
 done
 

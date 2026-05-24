@@ -112,6 +112,69 @@ Current hooks:
 - `run_onchange_40_yt-to-gobby.sh.tmpl`: prepare helper-script dependencies
   (only when `enableYtToGobby` is set; otherwise renders empty and is skipped).
 
+## Installed Tools
+
+Command-line tools:
+
+- `chezmoi`: manages these dotfiles and applies them to `$HOME`.
+- `git`: provides version control.
+- `gh`: manages GitHub auth, repositories, pull requests, and SSH keys from the terminal.
+- `curl`: fetches URLs and installer scripts.
+- `wget`: downloads files from the web.
+- `jq`: queries and transforms JSON.
+- `rg`: searches text quickly.
+- `fd`: finds files with a modern interface.
+- `fzf`: provides fuzzy selection for files, history, and command output.
+- `tree`: prints directory trees.
+- `bat`: previews files with syntax highlighting.
+- `eza`: lists files with modern formatting.
+- `zoxide`: jumps to frequently used directories.
+- `tmux`: runs persistent terminal sessions.
+- `git-delta`: renders readable, syntax-highlighted Git diffs.
+- `direnv`: loads reviewed per-project environment variables.
+- `just`: runs project commands from `justfile` recipes.
+- `hyperfine`: benchmarks shell commands.
+- `btop`: monitors CPU, memory, disk, and processes.
+- `dust`: summarizes disk usage by directory.
+- `dua`: inspects disk usage interactively.
+- `yazi`: browses files from the terminal.
+- `starship`: renders the shell prompt.
+- `antidote`: manages zsh plugins.
+- `uv`: manages Python tools and project environments.
+- `mise`: manages runtime versions such as Node.
+- `pnpm`: manages JavaScript packages.
+- `yt-dlp`: downloads video and metadata for personal workflows.
+- `mas`: installs Mac App Store apps when authenticated.
+- `dockutil`: updates the macOS Dock.
+
+Applications:
+
+- Google Chrome: primary Chromium browser.
+- Arc: alternate browser.
+- Helium: lightweight floating browser.
+- Visual Studio Code: editor.
+- Cursor: AI-assisted editor.
+- Ghostty: terminal emulator.
+- cmux: terminal workspace app.
+- iTerm2: alternate terminal emulator.
+- Raycast: launcher and automation tool.
+- Notion: notes and workspace app.
+- Obsidian: local Markdown knowledge base.
+- Slack: team chat.
+- Zoom: video calls.
+- Figma: design tool.
+- 1Password: password manager.
+- 1Password CLI: command-line access to 1Password.
+- AltTab: window switcher.
+- Mos: mouse scrolling helper.
+- OrbStack: local containers and Linux machines.
+
+Fonts:
+
+- Fira Code Nerd Font: coding font with icon glyphs.
+- Geist Mono Nerd Font: coding font with icon glyphs.
+- Mononoki Nerd Font: coding font with icon glyphs.
+
 ## Manual Setup
 
 Some setup remains intentionally manual:
