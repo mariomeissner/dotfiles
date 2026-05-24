@@ -13,6 +13,7 @@ then apply intentionally.
 - Homebrew formulae and casks via `Brewfile`
 - zsh login and interactive shell setup
 - Git identity and default behavior
+- SSH client defaults for GitHub and local overrides
 - zsh plugins via Antidote
 - Starship prompt configuration
 - Node LTS via `mise`
@@ -82,6 +83,7 @@ or decide to discard it.
 
 - `Brewfile`: Homebrew CLI tools and apps.
 - `dot_gitconfig.tmpl`: Git identity and default behavior.
+- `private_dot_ssh/private_config`: SSH client defaults.
 - `dot_zprofile`: login-shell Homebrew and environment setup.
 - `dot_zshrc`: interactive zsh setup.
 - `dot_zsh_plugins.txt`: Antidote plugin list.
@@ -123,6 +125,33 @@ Some setup remains intentionally manual:
 - GitHub SSH key or `gh auth login`
 - App-specific settings for editors, terminal apps, browsers, Raycast, and
   password manager
+
+### GitHub SSH Key
+
+This repo manages a reusable SSH client config, but it does not generate,
+store, or upload private keys.
+
+Create a per-machine key manually:
+
+```sh
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+ssh-keygen -t ed25519 -C "$(git config --global user.email)" -f ~/.ssh/id_ed25519
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+```
+
+Add the public key to GitHub manually or with the GitHub CLI:
+
+```sh
+gh auth login
+gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y-%m-%d)"
+ssh -T git@github.com
+```
+
+Keep private host aliases, raw IPs, temporary keys, and machine-specific SSH
+overrides in `~/.ssh/config.local`. The managed SSH config includes that file
+when it exists. Move any existing private `Host` blocks there before applying
+the managed SSH config.
 
 ## Health Check
 

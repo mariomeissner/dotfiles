@@ -1,0 +1,27 @@
+# Shared SSH client defaults managed by chezmoi.
+# Keep private hosts, raw IPs, and machine-specific overrides in ~/.ssh/config.local.
+
+Include ~/.orbstack/ssh/config
+Include ~/.ssh/config.local
+
+Host github.com
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+
+Host gist.github.com
+  HostName gist.github.com
+  User git
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
