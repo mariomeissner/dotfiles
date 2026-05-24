@@ -72,6 +72,10 @@ for config_file in "$HOME"/.config/zsh/custom/*.zsh(N); do
   . "$config_file"
 done
 
+# Starship cache. ~/.cache is blocked by macOS privacy metadata on this machine.
+export STARSHIP_CACHE="${STARSHIP_CACHE:-$HOME/.local/state/starship}"
+[ -d "$STARSHIP_CACHE" ] || mkdir -p "$STARSHIP_CACHE" 2>/dev/null
+
 # Starship prompt
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"

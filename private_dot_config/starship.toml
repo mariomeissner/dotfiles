@@ -2,7 +2,9 @@ add_newline = false
 format = """
 $directory\
 $git_branch\
+$git_state\
 $git_status\
+$git_metrics\
 $nodejs\
 $python\
 $cmd_duration\
@@ -22,6 +24,14 @@ style = "bold purple"
 style = "red"
 format = '([$all_status$ahead_behind]($style) )'
 
+[git_state]
+style = "bold yellow"
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+
+[git_metrics]
+disabled = false
+format = '([+$added]($added_style) )([-$deleted]($deleted_style) )'
+
 [nodejs]
 symbol = " "
 format = '[$symbol($version )]($style)'
@@ -39,4 +49,3 @@ format = "took [$duration](bold yellow) "
 [character]
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
-
