@@ -89,6 +89,8 @@ or decide to discard it.
 - `dot_zsh_plugins.txt`: Antidote plugin list.
 - `private_dot_config/`: managed files under `~/.config/`.
 - `dot_local/`: managed files under `~/.local/`.
+- `scripts/vendor-installers/`: idempotent installers for tools that manage
+  their own binaries outside Homebrew.
 - `scripts/`: helper scripts run manually or by chezmoi hooks.
 - `run_*`: chezmoi scripts and hooks.
 
@@ -109,6 +111,8 @@ Current hooks:
 - `run_onchange_15_mise-install.sh.tmpl`: run `mise install`.
 - `run_onchange_20_macos-defaults.sh.tmpl`: apply selected macOS defaults.
 - `run_onchange_30_dock.sh.tmpl`: add selected apps to the Dock.
+- `run_onchange_35_vendor-installers.sh.tmpl`: run idempotent installers for
+  vendor-managed tools.
 - `run_onchange_40_yt-to-gobby.sh.tmpl`: prepare helper-script dependencies
   (only when `enableYtToGobby` is set; otherwise renders empty and is skipped).
 
@@ -146,6 +150,19 @@ Command-line tools:
 - `yt-dlp`: downloads video and metadata for personal workflows.
 - `mas`: installs Mac App Store apps when authenticated.
 - `dockutil`: updates the macOS Dock.
+
+Vendor-managed command-line tools:
+
+- Claude Code: installed with Anthropic's native installer instead of Homebrew
+  because the native channel updates faster. The installer owns
+  `~/.local/bin/claude` and `~/.local/share/claude/`; user settings and history
+  live under `~/.claude/`.
+
+To add another vendor-managed tool, create an idempotent installer under
+`scripts/vendor-installers/`, then add a checksum line for it to
+`run_onchange_35_vendor-installers.sh.tmpl` so chezmoi reruns the installer
+group when that script changes. These scripts should install missing tools and
+leave ongoing updates to the vendor tool itself when possible.
 
 Applications:
 

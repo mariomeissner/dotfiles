@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+# Add a checksum line here for each installer script so chezmoi reruns this
+# hook when any vendor installer changes.
+# Claude Code installer checksum: {{ include "scripts/vendor-installers/claude-code.sh" | sha256sum }}
+
+INSTALLER_DIR="{{ .chezmoi.sourceDir }}/scripts/vendor-installers"
+
+if [ ! -d "$INSTALLER_DIR" ]; then
+  echo "No vendor installer directory found; skipping."
+  exit 0
+fi
+
+for installer in "$INSTALLER_DIR"/*.sh; do
+  [ -e "$installer" ] || continue
+  echo "Running vendor installer: $(basename "$installer" .sh)"
+  sh "$installer"
+done

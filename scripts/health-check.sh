@@ -34,6 +34,23 @@ optional_cmd() {
   fi
 }
 
+check_vendor_tool() {
+  cmd=$1
+  expected_path=$2
+  actual_path=$(command -v "$cmd" 2>/dev/null || true)
+
+  if [ -z "$actual_path" ]; then
+    fail "missing vendor-managed command: $cmd"
+    return
+  fi
+
+  if [ "$actual_path" = "$expected_path" ]; then
+    pass "vendor-managed command path: $cmd"
+  else
+    warn "$cmd expected $expected_path, got $actual_path"
+  fi
+}
+
 check_chezmoi_source() {
   expected_source=$(cd "$(dirname "$0")/.." && pwd)
   actual_source=$(chezmoi source-path 2>/dev/null)
@@ -95,6 +112,10 @@ echo "Checking optional commands..."
 for cmd in mas dockutil; do
   optional_cmd "$cmd"
 done
+
+echo
+echo "Checking vendor-managed commands..."
+check_vendor_tool claude "$HOME/.local/bin/claude"
 
 echo
 echo "Checking shell startup..."
