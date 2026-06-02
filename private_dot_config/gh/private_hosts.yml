@@ -1,0 +1,7 @@
+github.com:
+  git_protocol: ssh
+  users:
+    mariomeissner:
+      git_protocol: ssh
+    mario-hokinawa:
+  user: mariomeissner

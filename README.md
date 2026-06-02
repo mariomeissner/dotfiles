@@ -216,15 +216,15 @@ Create a per-machine key manually:
 ```sh
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
-ssh-keygen -t ed25519 -C "$(git config --global user.email)" -f ~/.ssh/id_ed25519
-ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+ssh-keygen -t rsa -b 4096 -C "$(git config --global user.email)" -f ~/.ssh/id_rsa
+ssh-add --apple-use-keychain ~/.ssh/id_rsa
 ```
 
 Add the public key to GitHub manually or with the GitHub CLI:
 
 ```sh
 gh auth login
-gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y-%m-%d)"
+gh ssh-key add ~/.ssh/id_rsa.pub --title "$(hostname)-$(date +%Y-%m-%d)"
 ssh -T git@github.com
 ```
 
