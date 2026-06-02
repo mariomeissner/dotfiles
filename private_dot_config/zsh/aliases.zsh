@@ -6,6 +6,15 @@ alias lt="eza --tree"
 # Navigation
 alias md="mkdir -p"
 
+# Prefer Homebrew's newer rsync over the macOS system rsync.
+if [ -n "${HOMEBREW_PREFIX:-}" ]; then
+  alias rsync="$HOMEBREW_PREFIX/bin/rsync"
+elif [ -x /opt/homebrew/bin/rsync ]; then
+  alias rsync="/opt/homebrew/bin/rsync"
+elif [ -x /usr/local/bin/rsync ]; then
+  alias rsync="/usr/local/bin/rsync"
+fi
+
 # Git essentials
 alias g="git"
 alias gs="git status"
@@ -35,4 +44,3 @@ alias gstp="git stash pop"
 alias gstl="git stash list"
 alias glog="git log --oneline --decorate --graph"
 alias gloga="git log --oneline --decorate --graph --all"
-
