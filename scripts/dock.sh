@@ -1,6 +1,14 @@
 #!/bin/sh
 set -eu
 
+# Ensure Homebrew-installed tools are on PATH (e.g. on first apply, when the
+# running shell predates the Homebrew install).
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 if ! command -v dockutil >/dev/null 2>&1; then
   echo "dockutil not installed; skipping Dock item setup."
   exit 0
