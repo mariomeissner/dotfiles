@@ -27,6 +27,10 @@ defaults write com.apple.dock tilesize -int 41
 # Disable press-and-hold accent popup so keys repeat normally.
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
+# Disable the Fn/🌐 key emoji pop-up so the key is free for other shortcuts.
+# 0 = Do Nothing, 1 = Change Input Source, 2 = Show Emoji & Symbols, 3 = Dictation.
+defaults write com.apple.HIToolbox AppleFnUsageType -int 0
+
 # Faster key repeat. Lower numbers are faster.
 defaults write NSGlobalDomain KeyRepeat -int 2
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
@@ -52,6 +56,14 @@ defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 defaults write com.apple.finder ShowPathbar -bool true
 
 ###############################################################################
+# Desktop & Stage Manager
+###############################################################################
+
+# Don't reveal the desktop (hide all windows) when clicking the wallpaper.
+# Only do so when Stage Manager is on.
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
+###############################################################################
 # Screenshots
 ###############################################################################
 
@@ -65,6 +77,7 @@ defaults write com.apple.screencapture location -string "$HOME/Documents/Screens
 killall Dock >/dev/null 2>&1 || true
 killall Finder >/dev/null 2>&1 || true
 killall SystemUIServer >/dev/null 2>&1 || true
+killall WindowManager >/dev/null 2>&1 || true
 
 echo
 echo "macOS defaults summary:"
@@ -82,6 +95,8 @@ printf "  Finder path bar: "
 defaults read com.apple.finder ShowPathbar 2>/dev/null || echo "unknown"
 printf "  Screenshot location: "
 defaults read com.apple.screencapture location 2>/dev/null || echo "unknown"
+printf "  Click wallpaper to show desktop: "
+defaults read com.apple.WindowManager EnableStandardClickToShowDesktop 2>/dev/null || echo "unknown"
 
 echo
 echo "macOS defaults applied. Some settings may require logout or restart."
