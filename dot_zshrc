@@ -1,5 +1,11 @@
 # Keep login-shell path setup in ~/.zprofile. This file is for interactive zsh.
 
+# History
+setopt INC_APPEND_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+
 # Antidote plugins
 if [ -f /opt/homebrew/share/antidote/antidote.zsh ] && [ -f "$HOME/.zsh_plugins.txt" ]; then
   . /opt/homebrew/share/antidote/antidote.zsh
