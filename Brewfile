@@ -1,5 +1,3 @@
-tap "homebrew/services"
-
 # Bootstrap / dotfiles
 brew "chezmoi"
 

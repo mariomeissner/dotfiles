@@ -1,0 +1,2 @@
+# Session-local Claude Code permissions (per-machine, not shared).
+.claude/settings.local.json
