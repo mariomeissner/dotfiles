@@ -1,5 +1,8 @@
 # Font
 font-family = GeistMono Nerd Font Mono
+# Japanese (CJK) fallback — GeistMono has no kanji/kana glyphs.
+# Ghostty uses later font-family entries for codepoints the primary lacks.
+font-family = BIZ UDGothic
 font-size = 15
 
 # Theme
