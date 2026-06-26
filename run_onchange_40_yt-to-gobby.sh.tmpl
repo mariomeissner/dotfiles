@@ -1,3 +1,4 @@
+{{- if .enableYtToGobby -}}
 #!/bin/sh
 set -eu
 
@@ -22,4 +23,5 @@ elif command -v npm >/dev/null 2>&1; then
 else
   echo "npm is not available yet; skipping yt-to-gobby dependency install."
 fi
+{{- end -}}
 

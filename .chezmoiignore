@@ -3,3 +3,10 @@ README.md
 Brewfile
 scripts/
 
+{{ if not .enableYtToGobby -}}
+# yt-to-gobby is opt-in; skip it unless enableYtToGobby is set.
+.local/bin/yt-to-gobby
+.local/share/yt-to-gobby
+.config/zsh/custom/yt-to-gobby.zsh
+{{ end -}}
+

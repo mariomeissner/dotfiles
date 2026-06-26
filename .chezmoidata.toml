@@ -1,0 +1,7 @@
+# Static defaults available to templates. Override per-machine in
+# ~/.config/chezmoi/chezmoi.toml under [data].
+
+# yt-to-gobby is opt-in and off by default. It uploads YouTube transcripts to a
+# personal VPS over SSH, so it should only be enabled on personal machines. To
+# enable it, set enableYtToGobby = true in this machine's local chezmoi config.
+enableYtToGobby = false

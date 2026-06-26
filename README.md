@@ -104,7 +104,8 @@ Current hooks:
 - `run_onchange_15_mise-install.sh.tmpl`: run `mise install`.
 - `run_onchange_20_macos-defaults.sh.tmpl`: apply selected macOS defaults.
 - `run_onchange_30_dock.sh.tmpl`: add selected apps to the Dock.
-- `run_onchange_40_yt-to-gobby.sh.tmpl`: prepare helper-script dependencies.
+- `run_onchange_40_yt-to-gobby.sh.tmpl`: prepare helper-script dependencies
+  (only when `enableYtToGobby` is set; otherwise renders empty and is skipped).
 
 ## Manual Setup
 
@@ -145,3 +146,19 @@ under `.config/zsh/custom/`.
 
 The included `yt-to-gobby` helper expects user-provided environment values for
 its upload target and is not meant to be a general-purpose public service.
+
+It is **opt-in** and off by default. The `enableYtToGobby` flag defaults to
+`false` in `.chezmoidata.toml`, so every machine skips it unless told
+otherwise — including unattended bootstraps. When disabled, its files
+(`.local/bin/yt-to-gobby`, `.local/share/yt-to-gobby`,
+`.config/zsh/custom/yt-to-gobby.zsh`) are ignored and the dependency-install
+hook renders empty.
+
+To enable it on a personal machine, override the flag in that machine's local
+`~/.config/chezmoi/chezmoi.toml` (which takes precedence over the repo
+default):
+
+```toml
+[data]
+    enableYtToGobby = true
+```
