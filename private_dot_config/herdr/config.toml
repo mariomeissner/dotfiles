@@ -1,0 +1,35 @@
+# Herdr config. Place at ~/.config/herdr/config.toml (managed by chezmoi).
+
+[theme]
+# Follow the host terminal's light/dark appearance and switch Herdr's UI
+# theme to match. Ghostty reports its appearance and follows macOS, so Herdr
+# tracks the system theme transitively.
+auto_switch = true
+dark_name = "catppuccin"
+light_name = "catppuccin-latte"
+
+[terminal]
+# New panes/tabs/workspaces default here when no explicit --cwd is given.
+new_cwd = "~/Projects/aiand"
+
+[ui]
+# Create tabs immediately with generated names instead of prompting.
+prompt_new_tab_name = false
+
+# Native macOS desktop notifications when background agents change state.
+agent_panel_sort = "priority"
+[ui.toast]
+delivery = "system"
+
+# Play sounds when agents change state in background workspaces (droid muted by default).
+[ui.sound]
+enabled = true
+
+[session]
+# Resume AI-agent panes into their native conversation sessions after a
+# Herdr server restart (requires integrations that report session refs).
+resume_agents_on_restore = true
+
+[experimental]
+# Inline image rendering via Ghostty's Kitty graphics support.
+kitty_graphics = true
