@@ -1,4 +1,5 @@
 # Herdr config. Place at ~/.config/herdr/config.toml (managed by chezmoi).
+onboarding = false
 
 [theme]
 # Follow the host terminal's light/dark appearance and switch Herdr's UI
@@ -7,6 +8,11 @@
 auto_switch = true
 dark_name = "catppuccin"
 light_name = "catppuccin-latte"
+
+[keys]
+# Cycle focus across agent panes directly (no prefix needed).
+next_agent = "ctrl+alt+tab"
+previous_agent = "ctrl+alt+shift+tab"
 
 [terminal]
 # New panes/tabs/workspaces default here when no explicit --cwd is given.
