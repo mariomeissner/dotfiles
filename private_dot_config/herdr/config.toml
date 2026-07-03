@@ -11,8 +11,17 @@ light_name = "catppuccin-latte"
 
 [keys]
 # Cycle focus across agent panes directly (no prefix needed).
-next_agent = "ctrl+alt+tab"
-previous_agent = "ctrl+alt+shift+tab"
+# ctrl+letter chords are the reliable direct-binding class; modified Tab
+# often doesn't survive terminal key encoding.
+next_agent = "ctrl+alt+n"
+previous_agent = "ctrl+alt+p"
+
+# Quick scratch terminal: right-side split next to the focused pane;
+# closes when the shell exits. (type = "pane" would open an overlay instead.)
+[[keys.command]]
+key = "prefix+t"
+type = "shell"
+command = "herdr pane split --current --direction right --ratio 0.35 --focus"
 
 [terminal]
 # New panes/tabs/workspaces default here when no explicit --cwd is given.
