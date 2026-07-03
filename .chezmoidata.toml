@@ -11,3 +11,7 @@ enableYtToGobby = false
 # on machines with a JIS keyboard, so it is opt-in. To enable it, set
 # enableKarabiner = true in this machine's local chezmoi config.
 enableKarabiner = false
+
+# Default cwd for new Herdr panes/tabs. Override per-machine in local chezmoi
+# config, e.g. herdrDefaultCwd = "~/Projects/myorg".
+herdrDefaultCwd = "~/Projects"

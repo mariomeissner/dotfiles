@@ -25,7 +25,7 @@ command = "herdr pane split --current --direction right --ratio 0.35 --focus"
 
 [terminal]
 # New panes/tabs/workspaces default here when no explicit --cwd is given.
-new_cwd = "~/Projects/aiand"
+new_cwd = {{ .herdrDefaultCwd | quote }}
 
 [ui]
 # Create tabs immediately with generated names instead of prompting.

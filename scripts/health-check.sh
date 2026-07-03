@@ -94,6 +94,62 @@ check_app() {
   fi
 }
 
+expand_home() {
+  case "$1" in
+    "~") printf '%s\n' "$HOME" ;;
+    "~/"*) printf '%s/%s\n' "$HOME" "${1#~/}" ;;
+    *) printf '%s\n' "$1" ;;
+  esac
+}
+
+check_yt_to_gobby() {
+  if [ ! -x "$HOME/.local/bin/yt-to-gobby" ]; then
+    return
+  fi
+
+  zsh_cfg="$HOME/.config/zsh/custom/yt-to-gobby.zsh"
+  if [ ! -f "$zsh_cfg" ]; then
+    fail "yt-to-gobby installed but missing $zsh_cfg"
+    return
+  fi
+
+  host=$(
+    grep '^export HERMES_YT_HOST=' "$zsh_cfg" 2>/dev/null \
+      | sed -E 's/^export HERMES_YT_HOST="([^"]*)".*/\1/' \
+      | head -1
+  )
+  if [ -z "$host" ]; then
+    fail "yt-to-gobby enabled but HERMES_YT_HOST is empty; set hermesYtHost in ~/.config/chezmoi/chezmoi.toml"
+    return
+  fi
+
+  pass "yt-to-gobby HERMES_YT_HOST configured"
+}
+
+check_herdr_cwd() {
+  config="$HOME/.config/herdr/config.toml"
+  if [ ! -f "$config" ]; then
+    return
+  fi
+
+  new_cwd=$(
+    grep -E '^new_cwd[[:space:]]*=' "$config" 2>/dev/null \
+      | sed -E 's/^new_cwd[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/' \
+      | head -1
+  )
+  if [ -z "$new_cwd" ]; then
+    fail "herdr config missing new_cwd in [terminal]"
+    return
+  fi
+
+  expanded=$(expand_home "$new_cwd")
+  if [ -d "$expanded" ]; then
+    pass "herdr new_cwd exists: $new_cwd"
+  else
+    fail "herdr new_cwd missing on disk: $new_cwd"
+  fi
+}
+
 echo "Checking required commands..."
 for cmd in brew chezmoi git gh rg fd fzf bat eza zoxide starship uv mise node pnpm delta direnv just hyperfine btop dust dua yazi; do
   require_cmd "$cmd"
@@ -106,6 +162,11 @@ else
 fi
 
 check_chezmoi_source
+
+echo
+echo "Checking managed app config..."
+check_yt_to_gobby
+check_herdr_cwd
 
 echo
 echo "Checking optional commands..."

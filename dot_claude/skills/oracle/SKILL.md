@@ -48,7 +48,7 @@ Codex can run the git commands itself in the read-only sandbox.
   for EOF.
 - **Read the answer from the `-o` file, not stdout** — stdout is the full work transcript
   (banner, every command it ran, token counts); the file is exactly the final message.
-- **`-C` must be a git repo root** (e.g. `~/Projects/aiand/uni`, not `~/Projects/aiand` — that
+- **`-C` must be a git repo root** (e.g. `~/Projects/myorg/uni`, not `~/Projects/myorg` — that
   folder is not a repo). For a non-repo directory add `--skip-git-repo-check`.
 - Codex sees the **working tree as-is**, including uncommitted changes.
 - **Timeout:** pass `timeout: 600000` to Bash — codex explores for minutes (~5 min typical).

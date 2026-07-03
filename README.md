@@ -242,7 +242,9 @@ sh scripts/health-check.sh
 ```
 
 The health check is read-only. Required setup failures return a non-zero exit
-code; optional/manual items are warnings.
+code; optional/manual items are warnings. When yt-to-gobby or Herdr config is
+present on the machine, it also verifies `HERMES_YT_HOST` is set and that
+Herdr's `new_cwd` directory exists.
 
 ## Secrets And Local Configuration
 
@@ -253,6 +255,15 @@ values should be configured outside the repo or in local-only files.
 
 Git identity is templated during `chezmoi init` and stored in the local chezmoi
 config, not hard-coded in the managed `.gitconfig`.
+
+Chezmoi's `private_` path prefix sets restrictive file permissions on disk
+(`600`); it does not hide those files from git. Keep machine-specific values in
+`~/.config/chezmoi/chezmoi.toml` under `[data]`, for example:
+
+```toml
+[data]
+    herdrDefaultCwd = "~/Projects/myorg"
+```
 
 ## Included Utilities
 
@@ -276,4 +287,5 @@ default):
 ```toml
 [data]
     enableYtToGobby = true
+    hermesYtHost = "root@your.vps.ip"
 ```

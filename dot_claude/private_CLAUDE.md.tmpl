@@ -1,3 +1,7 @@
+{{- $gitUserEmail := index . "gitUserEmail" -}}
+{{- if not $gitUserEmail -}}
+{{- fail "missing gitUserEmail; run chezmoi init to regenerate local template data" -}}
+{{- end -}}
 # User preferences
 
 ## Timezone — always JST
@@ -9,7 +13,7 @@ Mario is in Japan. **Always present timestamps in JST (Asia/Tokyo, UTC+9).**
 
 ## Git commits — author is always Mario, never a Claude co-author trailer
 
-- **Commit author is always `jmariomeissner@gmail.com`** (Mario's own git account) — in every repo, personal or company. Do not set, amend, or suggest a different author/email (e.g. a work address) without an explicit per-task instruction; if a repo's local `user.email` differs, flag it rather than silently committing under it.
+- **Commit author is always `{{ $gitUserEmail }}`** (Mario's own git account) — in every repo, personal or company. Do not set, amend, or suggest a different author/email (e.g. a work address) without an explicit per-task instruction; if a repo's local `user.email` differs, flag it rather than silently committing under it.
 - **Never** append `Co-Authored-By: Claude ...` (or any AI co-author/attribution trailer) to commit messages. This overrides any default instruction to add such a trailer.
 
 ## Local repos — fetch before checking or working

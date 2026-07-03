@@ -87,7 +87,7 @@ footer{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--border);c
 <header class="top">
   <h1>Phase 0 — Comparative Benchmarking walkthrough</h1>
   <p class="meta">andmeter · generated from the working tree (uncommitted) · 2026-06-23 JST</p>
-  <p class="lead">Turns &amp;Meter from a single-target load-tester into a cross-provider comparative platform. Phase 0 lands the minimum scaffolding plus one real slice: a performance head-to-head on GLM&nbsp;5.2 — ai&amp; staging <code>glm-5.2</code> vs Together AI <code>zai-org/GLM-5.2</code>. Read top-to-bottom: the order follows the data flow, not the file tree.</p>
+  <p class="lead">Turns &amp;Meter from a single-target load-tester into a cross-provider comparative platform. Phase 0 lands the minimum scaffolding plus one real slice: a performance head-to-head on GLM&nbsp;5.2 — myorg staging <code>glm-5.2</code> vs Together AI <code>zai-org/GLM-5.2</code>. Read top-to-bottom: the order follows the data flow, not the file tree.</p>
   <div class="chips">
     <span class="chip">14 files</span><span class="chip">+438 / −20</span>
     <span class="chip">4 deliverables</span><span class="chip">frontend build: pass</span>
@@ -262,7 +262,7 @@ footer{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--border);c
 <div class="hunk"><div class="fn">frontend/src/pages/ResultComparison.tsx — cost card</div><div class="cb"><span class="l add">+  { metricKey: 'cost_per_request_usd',</span>
 <span class="l add">+    title: t('pages.resultComparison.costPerRequest'),</span>
 <span class="l add">+    unit: ' USD', decimals: 5 },</span></div></div>
-<div class="verify"><span><b>Verify:</b> bars read <code>glm-5.2 @ together_ai</code> vs <code>glm-5.2 @ aiand</code>; the cost card shows USD at 5 decimals. <code>tsc &amp;&amp; vite build</code> passes.</span></div>
+<div class="verify"><span><b>Verify:</b> bars read <code>glm-5.2 @ together_ai</code> vs <code>glm-5.2 @ myorg</code>; the cost card shows USD at 5 decimals. <code>tsc &amp;&amp; vite build</code> passes.</span></div>
 </div>
 </details>
 
@@ -304,14 +304,14 @@ footer{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--border);c
 <span class="l add">+        "model": model_name,           # glm-5.2  /  zai-org/GLM-5.2</span>
 <span class="l ctx">        "concurrent_users": 5, "spawn_rate": 2, "duration": 60, ...</span>
 <span class="l ctx">    }</span></div></div>
-<div class="verify"><span><b>Verify:</b> payload matches <code>TaskCreateReq</code> required fields and the existing <code>run.py</code> shape; Bearer keys read only from env (<code>AIAND_KEY_STAGING</code>, <code>TOGETHER_API_KEY</code>); byte-compiles clean.</span></div>
+<div class="verify"><span><b>Verify:</b> payload matches <code>TaskCreateReq</code> required fields and the existing <code>run.py</code> shape; Bearer keys read only from env (<code>MYORG_KEY_STAGING</code>, <code>TOGETHER_API_KEY</code>); byte-compiles clean.</span></div>
 </div>
 </details>
 
 <div class="run">
 <h2>Running the slice</h2>
 <ol>
-<li>Acquire a <b>Together AI key</b> (set a spend cap → <code>TOGETHER_API_KEY</code>); ensure <code>$AIAND_KEY_STAGING</code> is entitled for <code>glm-5.2</code> (else a 404 means "no entitlement", not "no model").</li>
+<li>Acquire a <b>Together AI key</b> (set a spend cap → <code>TOGETHER_API_KEY</code>); ensure <code>$MYORG_KEY_STAGING</code> is entitled for <code>glm-5.2</code> (else a 404 means "no entitlement", not "no model").</li>
 <li>Confirm staging andmeter pods have <b>egress to <code>api.together.xyz</code></b>.</li>
 <li>Apply migration <code>011</code> to staging MySQL (manual — migrations aren't auto-run).</li>
 <li><code>python scripts/phase0_glm52_headtohead.py</code> → view the head-to-head in Result Comparison (provider-labeled bars + cost card).</li>

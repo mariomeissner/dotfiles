@@ -16,8 +16,10 @@ Approach mirrors ClawHub video-transcript-downloader:
 After upload, come back to chat and say:
   ingest the last video transcript I sent over
 
+Required env vars:
+  HERMES_YT_HOST=root@your.vps.ip   # set via ~/.config/chezmoi/chezmoi.toml or export
+
 Optional env vars:
-  HERMES_YT_HOST=root@163.44.118.197
   HERMES_YT_REMOTE_DIR=/root/inbox/youtube-transcripts/incoming
   YT_DLP_COOKIES_FROM_BROWSER=chrome   # or safari/firefox/brave/chromium
 EOF
@@ -70,7 +72,11 @@ if ! command -v ssh >/dev/null 2>&1 || ! command -v scp >/dev/null 2>&1; then
   exit 127
 fi
 
-HERMES_YT_HOST="${HERMES_YT_HOST:-root@163.44.118.197}"
+if [[ -z "${HERMES_YT_HOST:-}" ]]; then
+  echo "HERMES_YT_HOST is required. Set hermesYtHost in ~/.config/chezmoi/chezmoi.toml (with enableYtToGobby) or export it." >&2
+  exit 2
+fi
+
 HERMES_YT_REMOTE_DIR="${HERMES_YT_REMOTE_DIR:-/root/inbox/youtube-transcripts/incoming}"
 APP_DIR="$HOME/.local/share/yt-to-gobby"
 NODE_HELPER="$APP_DIR/transcript-plus.mjs"
