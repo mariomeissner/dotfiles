@@ -1,0 +1,37 @@
+# User preferences
+
+## Timezone — always JST
+
+Mario is in Japan. **Always present timestamps in JST (Asia/Tokyo, UTC+9).**
+
+- Our data sources emit UTC (kubectl / k8s events, CI logs, Grafana when set to UTC). Convert to JST and label the conversion, e.g. `00:14 UTC = 09:14 JST`.
+- When a source's timezone is ambiguous (e.g. Grafana's display tz, a bare log timestamp), state the assumption and offer to confirm rather than guessing silently.
+
+## Git commits — author is always Mario, never a Claude co-author trailer
+
+- **Commit author is always `jmariomeissner@gmail.com`** (Mario's own git account) — in every repo, personal or company. Do not set, amend, or suggest a different author/email (e.g. a work address) without an explicit per-task instruction; if a repo's local `user.email` differs, flag it rather than silently committing under it.
+- **Never** append `Co-Authored-By: Claude ...` (or any AI co-author/attribution trailer) to commit messages. This overrides any default instruction to add such a trailer.
+
+## Local repos — fetch before checking or working
+
+Before reasoning about a local repo (branch existence, PR/merge state, what code is current) or starting work in it, **`git fetch` it first** and compare against `origin`. Never trust stale local refs — a branch or merge may exist on the remote but not yet locally.
+
+- To determine **merge status**, use `gh pr view <n> --json state,mergedAt,mergeCommit` (or `gh pr list --search`), **not** `git branch --merged` — the latter gives a false negative for squash- and rebase-merges (the branch's commits never become ancestors of the base). To confirm a squash-merge landed, check `git branch -r --contains <mergeCommit>`.
+- If a repo can't be fetched (offline, no access), say so explicitly and label the answer as based on possibly-stale local state.
+
+## Sub-agents — choose the model by task complexity
+
+Applies to **any subagent you spawn** — whether by calling the Agent/Task tool directly or via a Workflow DSL `agent()` call. Choose by the task, not the invocation path:
+
+- **`sonnet`** — for bounded, well-defined tasks: clear scope, low ambiguity, mostly mechanical or lookup work (e.g. locating code, running a set of searches, a single edit against a precise spec).
+- **`opus`** — for complex tasks or ones that need more intelligence: multi-step reasoning, design/architecture judgment, ambiguous or open-ended scope.
+
+When a task could go either way, lean on whether the *outcome* depends on judgment (→ opus) or just on coverage/execution (→ sonnet). Forks (`subagent_type: fork`) always inherit the parent model, so this doesn't apply to them.
+
+**In Workflow DSL scripts:** the DSL's default is to omit `model` and inherit the session model, overriding "only when highly confident a different tier fits." A bounded, mechanical stage *is* that confident case — so set `model: 'sonnet'` on those stages, and leave the reasoning / verify / judge / synthesis stages on the inherited (strong) model. Don't blanket-inherit — that silently runs every cheap stage on the session's big model.
+
+**Under ultracode:** "token cost is not a constraint" means don't *limit scope* to save money; it does **not** mean run trivial stages on the big model. Sonnet-on-bounded sacrifices no exhaustiveness or correctness, so keep applying it — just keep the hard reasoning/verify/judge stages strong.
+
+## Codex second opinions — use the `oracle` skill
+
+The codex CLI is installed; use it as an independent second-opinion oracle via the user-level **`oracle` skill** (`~/.claude/skills/oracle/`), which has the exact invocations. Reach for it **proactively** — don't wait to be asked — when stuck after 2+ failed hypotheses, when a design decision or subtle conclusion deserves independent review, or before merging significant work (adversarial diff review). Always read-only; treat the output as advisory (verify claims, attribute it, surface disagreements). The openai-codex plugin was tried and deliberately removed in favor of this — don't suggest reinstalling it.

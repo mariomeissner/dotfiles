@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TITLE — walkthrough</title>
+<style>
+/* __WALKTHROUGH_CSS__  — replace this whole line with the verbatim contents of assets/walkthrough.css (keeps the artifact self-contained) */
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>TITLE</h1>
+  <p class="meta">PROJECT · SCOPE · DATE (JST)</p>
+  <p class="lead">One short paragraph: what changed and why. Tell the reader the order follows the data flow, not the file tree.</p>
+  <div class="chips"><span class="chip">N files</span><span class="chip">+X / −Y</span><span class="chip">build: pass</span></div>
+</header>
+
+<div class="decisions">
+  <h2>Decisions baked in</h2>
+  <ul><li>The non-obvious calls a reviewer should know up front.</li></ul>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 900 150" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Data flow</title><desc>One sentence describing the flow for screen readers.</desc>
+<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="var(--faint)" stroke-width="1.4"/></marker></defs>
+<rect x="20" y="36" width="190" height="58" rx="9" fill="var(--info-bg)" stroke="var(--info-bd)"/>
+<text x="115" y="62" text-anchor="middle" font-size="15" font-weight="600" fill="var(--text)" font-family="var(--sans)">Stage A</text>
+<text x="115" y="81" text-anchor="middle" font-size="12.5" fill="var(--muted)" font-family="var(--sans)">subtitle</text>
+<rect x="250" y="36" width="190" height="58" rx="9" fill="var(--surface2)" stroke="var(--border)"/>
+<text x="345" y="62" text-anchor="middle" font-size="15" font-weight="600" fill="var(--text)" font-family="var(--sans)">Stage B</text>
+<text x="345" y="81" text-anchor="middle" font-size="12.5" fill="var(--muted)" font-family="var(--sans)">subtitle</text>
+<line x1="210" y1="65" x2="248" y2="65" stroke="var(--faint)" stroke-width="1.4" marker-end="url(#ah)"/>
+<rect x="20" y="120" width="13" height="13" rx="3" fill="var(--info-bg)" stroke="var(--info-bd)"/><text x="40" y="131" font-size="12.5" fill="var(--muted)" font-family="var(--sans)">new in this change</text>
+<rect x="200" y="120" width="13" height="13" rx="3" fill="var(--surface2)" stroke="var(--border)"/><text x="220" y="131" font-size="12.5" fill="var(--muted)" font-family="var(--sans)">existing</text>
+</svg>
+</div>
+
+<div class="layout">
+<nav class="toc" aria-label="Reading order">
+  <p class="lbl">Reading order</p>
+  <ol><li><a href="#s1">Step title</a></li></ol>
+  <div class="tools">
+    <button onclick="document.querySelectorAll('.step').forEach(d=>d.open=true)">Expand all</button>
+    <button onclick="document.querySelectorAll('.step').forEach(d=>d.open=false)">Collapse</button>
+  </div>
+</nav>
+
+<main>
+
+<details class="step" id="s1" open>
+<summary><span class="num">1</span><h3>Step title</h3><span class="files">path/one · path/two</span></summary>
+<div class="body">
+<p class="k">What</p><p>One line on what this step does.</p>
+<p class="k">Why</p><p class="why">The decision or rationale behind it.</p>
+<div class="hunk"><div class="fn">path/to/file — symbol</div><div class="cb"><span class="l ctx">  unchanged context line</span>
+<span class="l add">+ added line — escape &amp; &lt; &gt; ; indentation preserved by white-space:pre</span>
+<span class="l del">- removed line</span></div></div>
+<div class="verify"><span><b>Verify:</b> how a reviewer would confirm this is correct.</span></div>
+</div>
+</details>
+
+</main>
+</div>
+
+<div class="run">
+<h2>Running / verifying</h2>
+<ol><li>Concrete steps to exercise the change end-to-end.</li></ol>
+<p class="k" style="margin-top:1rem">Verification status</p>
+<table class="sum">
+<tr><td>Area</td><td>result</td></tr>
+</table>
+</div>
+
+<footer>Generated walkthrough · self-contained, no external dependencies · reading order = data flow.</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<title>__TITLE__</title>
+
+<!--
+  No fixed stylesheet here on purpose — visual design (palette, spacing, typography, dark mode)
+  is delegated to the artifact-design skill, calibrated fresh per topic. This file only pins down
+  STRUCTURE and BEHAVIOR that the /explain procedure depends on regardless of how it's styled:
+  collapsible concept sections, dependency order, and (where used) the toggle/step-through
+  interaction mechanics below. Style all of this appropriately for the topic; don't reuse literal
+  colors/classes from reference/example.html — that file is a content/structure reference only,
+  its CSS is a snapshot from an earlier version of this skill.
+-->
+
+<div class="wrap">
+
+  <header>
+    <h1>__TITLE__</h1>
+    <p>__ONE_LINE_SCOPE__</p>
+    <p><b>Why this matters here —</b> __TIEBACK_TO_CONVERSATION__</p>
+  </header>
+
+  <!-- Inline SVG, ≤ ~6 boxes. Nodes = concepts, arrows = "requires/leads to".
+       Visually distinguish foundational vs. derived concepts somehow (fill, border, whatever
+       reads clearly against the chosen palette) — the map should convey the shape at a glance,
+       before anyone opens a section below. -->
+  <figure>
+    <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="80" width="160" height="50" rx="8"/>
+      <text x="100" y="110" text-anchor="middle" font-size="14">Concept A</text>
+      <line x1="180" y1="105" x2="260" y2="105" marker-end="url(#arrow)"/>
+      <rect x="260" y="80" width="160" height="50" rx="8"/>
+      <text x="340" y="110" text-anchor="middle" font-size="14">Concept B</text>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption>__DIAGRAM_CAPTION__</figcaption>
+  </figure>
+
+  <!-- One <details> per concept, dependency-ordered. First one open, rest collapsed — this is a
+       behavioral requirement (skimmable by default), not a style choice; keep it native <details>. -->
+  <details open>
+    <summary>1. __CONCEPT_TITLE__ <span>foundational</span></summary>
+    <p>__PLAIN_EXPLANATION__</p>
+    <p><b>In this conversation:</b> __CONCRETE_EXAMPLE_TIED_TO_THREAD__</p>
+    <!-- Optional: a callout for a common misconception or gotcha. -->
+    <p><i>→ __ONE_LINE_LINK_TO_NEXT_CONCEPT_OR_ORIGINAL_QUESTION__</i></p>
+  </details>
+
+  <details>
+    <summary>2. __CONCEPT_TITLE__ <span>derived</span></summary>
+    <p>__PLAIN_EXPLANATION__</p>
+
+    <!-- WORKED PATTERN: before/after toggle. Use when a concept is best shown as two states of
+         the same diagram (e.g. "without caching" vs "with caching"). Delete if unused — this is
+         a behavior snippet to adapt, not a component to reuse verbatim; restyle its buttons/markup
+         to match whatever this artifact's design turned out to be. -->
+    <div class="toggle-group">
+      <button onclick="__TOGGLE_FN__(this,'before')">Before</button>
+      <button onclick="__TOGGLE_FN__(this,'after')">After</button>
+    </div>
+    <figure id="__TOGGLE_ID__">
+      <svg viewBox="0 0 720 160" xmlns="http://www.w3.org/2000/svg">
+        <text x="360" y="85" text-anchor="middle" font-size="14">state: before</text>
+      </svg>
+    </figure>
+
+    <p><b>In this conversation:</b> __CONCRETE_EXAMPLE_TIED_TO_THREAD__</p>
+    <p><i>→ __ONE_LINE_LINK_FORWARD__</i></p>
+  </details>
+
+  <!-- Add more <details> blocks as needed, 2-5 total is typical. -->
+
+  <footer>Generated __DATE_JST__ · /explain</footer>
+</div>
+
+<script>
+// WORKED PATTERN: toggle swaps the SVG content of a diagram between named states.
+function __TOGGLE_FN__(btn, state){
+  const group = btn.parentElement;
+  group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const svg = document.querySelector('#__TOGGLE_ID__ svg text');
+  svg.textContent = 'state: ' + state;
+}
+
+// WORKED PATTERN: step-through for sequential processes (request flow, state machine).
+// Wire prev/next buttons and a position counter if a concept needs it.
+// function __STEP_FN__(direction) { ... }
+</script>
