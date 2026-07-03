@@ -20,6 +20,7 @@ then apply intentionally.
 - Selected macOS defaults
 - Dock setup
 - A small set of personal helper scripts
+- Karabiner-Elements JIS→ANSI remaps (opt-in via `enableKarabiner`)
 
 ## Quick Start
 

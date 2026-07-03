@@ -10,3 +10,8 @@ scripts/
 .config/zsh/custom/yt-to-gobby.zsh
 {{ end -}}
 
+{{ if not .enableKarabiner -}}
+# Karabiner JIS remaps are opt-in; skip them unless enableKarabiner is set.
+.config/karabiner
+{{ end -}}
+
