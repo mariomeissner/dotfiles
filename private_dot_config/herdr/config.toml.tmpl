@@ -28,8 +28,8 @@ command = "herdr pane split --current --direction right --ratio 0.35 --focus"
 new_cwd = {{ .herdrDefaultCwd | quote }}
 
 [ui]
-# Create tabs immediately with generated names instead of prompting.
-prompt_new_tab_name = false
+# Prompt for a tab name on creation instead of auto-generating one.
+prompt_new_tab_name = true
 
 # Show detected/reported agent labels in split pane borders when no manual
 # pane name is set.
