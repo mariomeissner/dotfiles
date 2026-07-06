@@ -7,3 +7,6 @@ fi
 
 # Keep Homebrew commands fast and explicit; update manually with `brew update`.
 export HOMEBREW_NO_AUTO_UPDATE=1
+
+# User-local vendor tools should win over Homebrew casks with the same command.
+export PATH="$HOME/.local/bin:$PATH"
