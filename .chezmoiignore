@@ -1,5 +1,6 @@
 # Repo/source files that should not be copied into $HOME.
 README.md
+AGENTS.md
 Brewfile
 scripts/
 
