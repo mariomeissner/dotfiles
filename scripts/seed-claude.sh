@@ -10,11 +10,16 @@ Usage: sh scripts/seed-claude.sh [--force]
 
 Seed Claude Code preferences on a new machine.
 
-Default behavior is conservative: create missing files and skip existing files.
-With --force, existing files are backed up next to the original before being
-replaced.
+Copies the authored, version-controlled content from scripts/seed-claude/
+(CLAUDE.md and statusline.sh) into ~/.claude, and writes a baseline
+settings.json. It does NOT set a model or manage Herdr-generated files.
 
-After Herdr updates, run:
+Default behavior is conservative: create missing files and skip existing files.
+With --force, existing files are backed up next to the original (.backup-<ts>)
+before being replaced. Rerun with --force after editing a payload file in the
+repo to resync it onto this machine.
+
+After Herdr updates, install its generated integration files with:
   herdr integration install claude
 EOF
   exit 0
@@ -23,24 +28,66 @@ elif [ -n "${1:-}" ]; then
   exit 2
 fi
 
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+payload_dir="$script_dir/seed-claude"
+if [ ! -d "$payload_dir" ]; then
+  echo "payload directory not found: $payload_dir" >&2
+  exit 1
+fi
+
+# Commit email for CLAUDE.md comes from this machine's git identity, which is
+# configured during chezmoi init. No email address is baked into the repo.
+git_email="$(git config --global user.email 2>/dev/null || true)"
+if [ -z "$git_email" ]; then
+  echo "warning: git user.email is not set (run chezmoi init and apply first);" \
+       "leaving the CLAUDE.md commit-author line generic." >&2
+  git_email="my configured global git identity"
+fi
+
 backup_path() {
   target="$1"
   timestamp="$(date +%Y%m%d-%H%M%S)"
   echo "$target.backup-$timestamp"
 }
 
-write_file() {
+# Back up an existing target when --force; returns 1 (skip) when the target
+# exists and --force was not given.
+guard_target() {
   target="$1"
-  mode="$2"
   mkdir -p "$(dirname "$target")"
   if [ -e "$target" ]; then
     if [ "$force" != true ]; then
       echo "skip existing $target"
-      return 0
+      return 1
     fi
     backup="$(backup_path "$target")"
     cp -p "$target" "$backup"
     echo "backed up $target to $backup"
+  fi
+  return 0
+}
+
+# Write stdin to a target with the given mode (used for generated settings.json).
+write_file() {
+  target="$1"
+  mode="$2"
+  guard_target "$target" || return 0
+  tmp="$target.tmp.$$"
+  cat >"$tmp"
+  chmod "$mode" "$tmp"
+  mv "$tmp" "$target"
+  echo "wrote $target"
+}
+
+# Write stdin to a target only if it does not exist. Machine-owned files use
+# this so re-seeding (even with --force) never clobbers local edits.
+write_if_missing() {
+  target="$1"
+  mode="$2"
+  mkdir -p "$(dirname "$target")"
+  if [ -e "$target" ]; then
+    echo "keep existing $target"
+    return 0
   fi
   tmp="$target.tmp.$$"
   cat >"$tmp"
@@ -49,6 +96,21 @@ write_file() {
   echo "wrote $target"
 }
 
+# Copy a payload file to a target with the given mode.
+copy_file() {
+  src="$1"
+  target="$2"
+  mode="$3"
+  guard_target "$target" || return 0
+  tmp="$target.tmp.$$"
+  cp "$src" "$tmp"
+  chmod "$mode" "$tmp"
+  mv "$tmp" "$target"
+  echo "wrote $target"
+}
+
+# Baseline settings. Intentionally omits "model" so a new machine keeps Claude
+# Code's own default; set the model per-machine afterwards.
 write_file "$HOME/.claude/settings.json" 600 <<EOF
 {
   "env": {
@@ -65,7 +127,6 @@ write_file "$HOME/.claude/settings.json" 600 <<EOF
     ],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5[1m]",
   "hooks": {
     "SessionStart": [
       {
@@ -100,88 +161,38 @@ write_file "$HOME/.claude/settings.json" 600 <<EOF
 }
 EOF
 
-write_file "$HOME/.claude/CLAUDE.md" 600 <<EOF
-# User preferences
-
-## Timezone - always JST
-
-Mario is in Japan. Always present timestamps in JST (Asia/Tokyo, UTC+9).
-
-- Convert UTC timestamps to JST and label the conversion.
-- When a source's timezone is ambiguous, state the assumption and offer to confirm.
-
-## Git commits - author is always Mario
-
-- Commit author is always \`$(git config --global user.email 2>/dev/null || echo "jmariomeissner@gmail.com")\`.
-- Never append AI co-author or attribution trailers to commit messages.
-
-## Local repos - verify freshness when remote state matters
-
-When the answer depends on current remote state, run \`git fetch\` first and
-compare against \`origin\`. If a repo cannot be fetched, say so explicitly.
-
-## Codex second opinions
-
-The Codex CLI can be used as an independent read-only second opinion for hard
-bugs, subtle design decisions, and adversarial diff review.
-EOF
-
-write_file "$HOME/.claude/statusline.sh" 755 <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-input=$(cat)
-ESC=$'\033'
-
-cwd=$(jq -rn --argjson d "$input" '$d.workspace.current_dir // $d.cwd // ""')
-branch=""
-if [ -n "$cwd" ]; then
-  branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short -q HEAD 2>/dev/null \
-        || git -C "$cwd" rev-parse --short HEAD 2>/dev/null || true)
+# Authored content from the tracked payload. CLAUDE.md has its default commit
+# email rewritten to this machine's git identity; statusline is copied verbatim.
+claude_md="$HOME/.claude/CLAUDE.md"
+if guard_target "$claude_md"; then
+  tmp="$claude_md.tmp.$$"
+  sed "s|<git-email>|$git_email|g" "$payload_dir/CLAUDE.md" > "$tmp"
+  chmod 600 "$tmp"
+  mv "$tmp" "$claude_md"
+  echo "wrote $claude_md"
 fi
+copy_file "$payload_dir/statusline.sh" "$HOME/.claude/statusline.sh" 755
 
-jq -rn --argjson d "$input" --arg branch "$branch" --arg E "$ESC" '
-  def color(c; s): $E + "[" + c + "m" + s + $E + "[0m";
-  def k: if . >= 1000 then ((./1000)|floor|tostring) + "k" else (.|tostring) end;
-  def meter(p; s): if p >= 90 then color("31"; s) elif p >= 70 then color("33"; s) else s end;
-  ($d.model.display_name // "?") as $model |
-  ($d.effort.level // "") as $eff |
-  ($d.context_window.total_input_tokens // 0) as $used |
-  ($d.context_window.context_window_size // 0) as $max |
-  ($d.context_window.used_percentage // 0) as $pct |
-  [
-    color("36"; $model) + (if $eff != "" then color("90"; " - " + $eff) else "" end),
-    (if $branch != "" then ("git:" + $branch) else empty end),
-    (if $max > 0 then meter($pct; "ctx " + ($used|k) + "/" + ($max|k)) else empty end)
-  ] | map(select(. != "" and . != null)) | join(color("90"; "  -  "))
-'
-EOF
+# Machine-specific preferences, imported by the shared CLAUDE.md via
+# "@CLAUDE.local.md". Seeded once as a template; never overwritten, so each
+# machine owns its own edits. Fill in the placeholders after seeding.
+write_if_missing "$HOME/.claude/CLAUDE.local.md" 600 <<'EOF'
+# This machine
 
-write_file "$HOME/.claude/skills/oracle/SKILL.md" 644 <<'EOF'
----
-name: oracle
-description: Consult OpenAI Codex as an independent second-opinion oracle for stuck bugs, subtle design decisions, or adversarial diff review.
----
+Machine-specific preferences and context, imported by `~/.claude/CLAUDE.md`.
+Created once by `scripts/seed-claude.sh` and never overwritten by re-seeding, so
+edit it freely.
 
-# oracle
+## Context
 
-Run `codex exec` headless against the relevant repo. Codex reads the code
-itself, so give it pointers, not pasted dumps.
+- Role: personal / work machine (delete one).
+- Primary working area: `~/Projects`
 
-```bash
-codex exec --ephemeral --sandbox read-only --color never \
-  -c model_reasoning_effort=high \
-  -C <git-repo-root> \
-  -o <scratchpad>/oracle-answer.md \
-  "$(cat <<'PROMPT'
-<self-contained brief>
-PROMPT
-)" </dev/null
-```
+## Preferences
 
-Include the goal, precise question, relevant `path:line` pointers, what has
-been tried, and constraints. Treat the answer as advisory and verify concrete
-claims before acting.
+- Preferred model on this machine: (e.g. `opus[1m]` / `claude-fable-5[1m]`).
+- Notes: hardware quirks, tools present, paths, enabled features (Karabiner JIS
+  remap, yt-to-gobby, etc.).
 EOF
 
 echo "Claude seed complete."
