@@ -95,11 +95,13 @@ check_app() {
 }
 
 expand_home() {
-  case "$1" in
-    "~") printf '%s\n' "$HOME" ;;
-    "~/"*) printf '%s/%s\n' "$HOME" "${1#~/}" ;;
-    *) printf '%s\n' "$1" ;;
-  esac
+  if [ "$1" = "~" ]; then
+    printf '%s\n' "$HOME"
+  elif [ "${1#\~/}" != "$1" ]; then
+    printf '%s/%s\n' "$HOME" "${1#\~/}"
+  else
+    printf '%s\n' "$1"
+  fi
 }
 
 check_yt_to_gobby() {

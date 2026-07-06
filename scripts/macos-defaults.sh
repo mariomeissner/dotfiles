@@ -3,6 +3,36 @@ set -eu
 
 echo "Applying macOS defaults..."
 
+restart_dock() {
+  uid=$(id -u)
+  service="gui/$uid/com.apple.Dock.agent"
+
+  killall Dock >/dev/null 2>&1 || true
+
+  i=0
+  while [ "$i" -lt 20 ]; do
+    if launchctl print "$service" 2>/dev/null | grep -q "state = running"; then
+      return 0
+    fi
+    i=$((i + 1))
+    sleep 0.25
+  done
+
+  echo "Dock did not restart automatically; kickstarting $service..."
+  launchctl kickstart -k "$service" >/dev/null 2>&1 || true
+
+  i=0
+  while [ "$i" -lt 20 ]; do
+    if launchctl print "$service" 2>/dev/null | grep -q "state = running"; then
+      return 0
+    fi
+    i=$((i + 1))
+    sleep 0.25
+  done
+
+  echo "Warning: Dock still does not appear to be running."
+}
+
 ###############################################################################
 # Dock
 ###############################################################################
@@ -74,7 +104,7 @@ defaults write com.apple.screencapture location -string "$HOME/Documents/Screens
 # Apply
 ###############################################################################
 
-killall Dock >/dev/null 2>&1 || true
+restart_dock
 killall Finder >/dev/null 2>&1 || true
 killall SystemUIServer >/dev/null 2>&1 || true
 killall WindowManager >/dev/null 2>&1 || true

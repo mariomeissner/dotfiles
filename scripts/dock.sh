@@ -9,6 +9,36 @@ elif [ -x /usr/local/bin/brew ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+restart_dock() {
+  uid=$(id -u)
+  service="gui/$uid/com.apple.Dock.agent"
+
+  killall Dock >/dev/null 2>&1 || true
+
+  i=0
+  while [ "$i" -lt 20 ]; do
+    if launchctl print "$service" 2>/dev/null | grep -q "state = running"; then
+      return 0
+    fi
+    i=$((i + 1))
+    sleep 0.25
+  done
+
+  echo "Dock did not restart automatically; kickstarting $service..."
+  launchctl kickstart -k "$service" >/dev/null 2>&1 || true
+
+  i=0
+  while [ "$i" -lt 20 ]; do
+    if launchctl print "$service" 2>/dev/null | grep -q "state = running"; then
+      return 0
+    fi
+    i=$((i + 1))
+    sleep 0.25
+  done
+
+  echo "Warning: Dock still does not appear to be running."
+}
+
 if ! command -v dockutil >/dev/null 2>&1; then
   echo "dockutil not installed; skipping Dock item setup."
   exit 0
@@ -43,6 +73,5 @@ add_app "/Applications/Notion.app"
 add_app "/Applications/Slack.app"
 add_app "/Applications/Obsidian.app"
 
-killall Dock >/dev/null 2>&1 || true
+restart_dock
 echo "Dock item setup complete."
-
