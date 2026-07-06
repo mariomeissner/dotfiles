@@ -3,6 +3,12 @@ README.md
 Brewfile
 scripts/
 
+# Coding-agent CLI state is intentionally not managed by chezmoi. Use seed
+# scripts for new-machine bootstrap, then let the tools, plugins, and Herdr own
+# their app-state drift.
+.claude
+.codex
+
 {{ if not .enableYtToGobby -}}
 # yt-to-gobby is opt-in; skip it unless enableYtToGobby is set.
 .local/bin/yt-to-gobby
@@ -14,4 +20,3 @@ scripts/
 # Karabiner JIS remaps are opt-in; skip them unless enableKarabiner is set.
 .config/karabiner
 {{ end -}}
-
