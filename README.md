@@ -148,7 +148,8 @@ Command-line tools:
 - `yazi`: browses files from the terminal.
 - `starship`: renders the shell prompt.
 - `antidote`: manages zsh plugins.
-- `uv`: manages Python tools and project environments.
+- `uv`: manages Python tools and project environments. Its cache is kept in a
+  workspace-local `.uv-cache/` so sandboxed commands do not require approval.
 - `mise`: manages runtime versions such as Node.
 - `pnpm`: manages JavaScript packages.
 - `yt-dlp`: downloads video and metadata for personal workflows.

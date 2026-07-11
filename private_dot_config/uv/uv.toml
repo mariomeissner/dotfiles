@@ -1,0 +1,2 @@
+# Keep uv cache writes inside sandboxed working directories.
+cache-dir = ".uv-cache"
