@@ -4,6 +4,10 @@ set -eu
 # Add a checksum line here for each installer script so chezmoi reruns this
 # hook when any vendor installer changes.
 # Claude Code installer checksum: {{ include "scripts/vendor-installers/claude-code.sh" | sha256sum }}
+# Herdr installer checksum: {{ include "scripts/vendor-installers/herdr.sh" | sha256sum }}
+# Codex CLI installer checksum: {{ include "scripts/vendor-installers/codex.sh" | sha256sum }}
+# Grok CLI installer checksum: {{ include "scripts/vendor-installers/grok.sh" | sha256sum }}
+# OMP installer checksum: {{ include "scripts/vendor-installers/omp.sh" | sha256sum }}
 
 INSTALLER_DIR="{{ .chezmoi.sourceDir }}/scripts/vendor-installers"
 

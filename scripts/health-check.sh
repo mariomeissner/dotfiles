@@ -51,6 +51,16 @@ check_vendor_tool() {
   fi
 }
 
+check_vendor_shell_blocks() {
+  for file in "$HOME/.zprofile" "$HOME/.zshrc"; do
+    [ -f "$file" ] || continue
+
+    if grep -Eq '^# >>> (Codex|grok) installer >>>$' "$file"; then
+      fail "vendor installer block found in managed shell file: $file"
+    fi
+  done
+}
+
 check_chezmoi_source() {
   expected_source=$(cd "$(dirname "$0")/.." && pwd)
   actual_source=$(chezmoi source-path 2>/dev/null)
@@ -179,6 +189,11 @@ done
 echo
 echo "Checking vendor-managed commands..."
 check_vendor_tool claude "$HOME/.local/bin/claude"
+check_vendor_tool herdr "$HOME/.local/bin/herdr"
+check_vendor_tool codex "$HOME/.local/bin/codex"
+check_vendor_tool grok "$HOME/.local/bin/grok"
+check_vendor_tool omp "$HOME/.local/bin/omp"
+check_vendor_shell_blocks
 
 echo
 echo "Checking shell startup..."
