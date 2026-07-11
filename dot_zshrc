@@ -12,7 +12,15 @@ export YSU_MESSAGE_POSITION="after"
 # Antidote plugins
 if [ -f /opt/homebrew/share/antidote/antidote.zsh ] && [ -f "$HOME/.zsh_plugins.txt" ]; then
   . /opt/homebrew/share/antidote/antidote.zsh
-  antidote load "$HOME/.zsh_plugins.txt"
+  if ! antidote load "$HOME/.zsh_plugins.txt"; then
+    print -u2 "warning: Antidote plugins failed to load"
+  fi
+fi
+
+# Keep standard completions working if Antidote or ez-compinit fails to load.
+if (( ! ${+functions[compdef]} )); then
+  autoload -Uz compinit
+  compinit
 fi
 
 # History substring search

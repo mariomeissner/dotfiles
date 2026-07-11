@@ -227,6 +227,11 @@ Some setup remains intentionally manual:
 This repo manages a reusable SSH client config, but it does not generate,
 store, or upload private keys.
 
+GitHub HTTPS URLs are not globally rewritten to SSH. Use an explicit SSH URL,
+such as `git@github.com:owner/repository.git`, for repositories that should
+authenticate with an SSH key. This keeps public HTTPS dependencies usable before
+GitHub SSH authentication has been configured.
+
 Create a per-machine key manually:
 
 ```sh
