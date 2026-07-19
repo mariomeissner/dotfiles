@@ -93,3 +93,4 @@ export STARSHIP_CACHE="${STARSHIP_CACHE:-$HOME/.local/state/starship}"
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
+[ -f ~/.cli-proxy-api/claude-glm.zsh ] && source ~/.cli-proxy-api/claude-glm.zsh

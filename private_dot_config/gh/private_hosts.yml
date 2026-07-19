@@ -1,6 +1,6 @@
 github.com:
-  git_protocol: ssh
-  users:
-    mariomeissner:
-      git_protocol: ssh
-  user: mariomeissner
+    git_protocol: ssh
+    users:
+        mariomeissner:
+            git_protocol: ssh
+    user: mariomeissner
