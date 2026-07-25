@@ -12,7 +12,8 @@ Seed Claude Code preferences on a new machine.
 
 Copies the authored, version-controlled content from scripts/seed-claude/
 (CLAUDE.md and statusline.sh) into ~/.claude, and writes a baseline
-settings.json. It does NOT set a model or manage Herdr-generated files.
+settings.json, plus an empty CLAUDE.local.md for machine-specific notes. It
+does NOT set a model or manage Herdr-generated files.
 
 Default behavior is conservative: create missing files and skip existing files.
 With --force, existing files are backed up next to the original (.backup-<ts>)
@@ -33,15 +34,6 @@ payload_dir="$script_dir/seed-claude"
 if [ ! -d "$payload_dir" ]; then
   echo "payload directory not found: $payload_dir" >&2
   exit 1
-fi
-
-# Commit email for CLAUDE.md comes from this machine's git identity, which is
-# configured during chezmoi init. No email address is baked into the repo.
-git_email="$(git config --global user.email 2>/dev/null || true)"
-if [ -z "$git_email" ]; then
-  echo "warning: git user.email is not set (run chezmoi init and apply first);" \
-       "leaving the CLAUDE.md commit-author line generic." >&2
-  git_email="my configured global git identity"
 fi
 
 backup_path() {
@@ -147,6 +139,7 @@ write_file "$HOME/.claude/settings.json" 600 <<EOF
     "padding": 1
   },
   "enabledPlugins": {},
+  "includeCoAuthoredBy": false,
   "enableWorkflows": true,
   "effortLevel": "high",
   "autoMemoryEnabled": false,
@@ -161,38 +154,15 @@ write_file "$HOME/.claude/settings.json" 600 <<EOF
 }
 EOF
 
-# Authored content from the tracked payload. CLAUDE.md has its default commit
-# email rewritten to this machine's git identity; statusline is copied verbatim.
-claude_md="$HOME/.claude/CLAUDE.md"
-if guard_target "$claude_md"; then
-  tmp="$claude_md.tmp.$$"
-  sed "s|<git-email>|$git_email|g" "$payload_dir/CLAUDE.md" > "$tmp"
-  chmod 600 "$tmp"
-  mv "$tmp" "$claude_md"
-  echo "wrote $claude_md"
-fi
+# Authored content from the tracked payload, copied verbatim.
+copy_file "$payload_dir/CLAUDE.md" "$HOME/.claude/CLAUDE.md" 600
 copy_file "$payload_dir/statusline.sh" "$HOME/.claude/statusline.sh" 755
 
 # Machine-specific preferences, imported by the shared CLAUDE.md via
-# "@CLAUDE.local.md". Seeded once as a template; never overwritten, so each
-# machine owns its own edits. Fill in the placeholders after seeding.
+# "@CLAUDE.local.md". Seeded empty and never overwritten, so each machine owns
+# its own content; add whatever this machine needs after seeding.
 write_if_missing "$HOME/.claude/CLAUDE.local.md" 600 <<'EOF'
 # This machine
-
-Machine-specific preferences and context, imported by `~/.claude/CLAUDE.md`.
-Created once by `scripts/seed-claude.sh` and never overwritten by re-seeding, so
-edit it freely.
-
-## Context
-
-- Role: personal / work machine (delete one).
-- Primary working area: `~/Projects`
-
-## Preferences
-
-- Preferred model on this machine: (e.g. `opus[1m]` / `claude-fable-5[1m]`).
-- Notes: hardware quirks, tools present, paths, enabled features (Karabiner JIS
-  remap, yt-to-gobby, etc.).
 EOF
 
 echo "Claude seed complete."

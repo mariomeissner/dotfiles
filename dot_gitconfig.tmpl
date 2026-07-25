@@ -72,3 +72,13 @@
 [rebase]
 	autoStash = true
 	updateRefs = true
+
+# Written by `gh auth setup-git`; kept here so HTTPS remotes authenticate via
+# the gh token instead of prompting. The empty `helper =` resets any inherited
+# helper (e.g. osxkeychain) before adding gh's.
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
